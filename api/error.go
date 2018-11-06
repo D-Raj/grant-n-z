@@ -1,4 +1,4 @@
-package domain
+package api
 
 import (
 	"github.com/labstack/echo"
@@ -10,7 +10,7 @@ type Error struct {
 	Detail  interface{} `json:"detail"`
 }
 
-func GrantErrorHandler(err error, c echo.Context) {
+func ErrorHandler(err error, c echo.Context) {
 	var response Error
 	var code int
 	var message string
