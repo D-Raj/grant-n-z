@@ -11,7 +11,7 @@ import (
 
 func PostRole(c echo.Context) (err error) {
 	token := c.Request().Header.Get("Authorization")
-	errAuth := di.ProvideTokenService.VerifyToken(c, token)
+	errAuth := di.ProvideTokenService.VerifyToken(c, token, "")
 
 	if errAuth != nil {
 		return echo.NewHTTPError(errAuth.Code, errAuth)
@@ -32,5 +32,5 @@ func PostRole(c echo.Context) (err error) {
 	}
 
 	c.Response().Header().Add("Location", infra.GetHostName() + "/v1/roles/" + roleData.Uuid.String())
-	return c.JSON(http.StatusOK, roleData)
+	return c.JSON(http.StatusCreated, roleData)
 }

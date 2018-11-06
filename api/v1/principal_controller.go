@@ -10,8 +10,9 @@ import (
 )
 
 func PostPrincipal(c echo.Context) (err error) {
+	permission := c.QueryParam("permission")
 	token := c.Request().Header.Get("Authorization")
-	errAuth := di.ProvideTokenService.VerifyToken(c, token)
+	errAuth := di.ProvideTokenService.VerifyToken(c, token, permission)
 
 	if errAuth != nil {
 		return echo.NewHTTPError(errAuth.Code, errAuth)

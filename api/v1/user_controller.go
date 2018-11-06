@@ -31,8 +31,8 @@ func PostUser(c echo.Context) (err error) {
 
 func PutUser(c echo.Context) (err error) {
 	token := c.Request().Header.Get("Authorization")
-	column := c.Param("column")
-	errAuth := di.ProvideTokenService.VerifyToken(c, token)
+	column := c.QueryParam("column")
+	errAuth := di.ProvideTokenService.VerifyToken(c, token, "")
 
 	if errAuth != nil {
 		return echo.NewHTTPError(errAuth.Code, errAuth)
