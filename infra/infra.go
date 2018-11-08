@@ -1,44 +1,61 @@
 package infra
 
 import (
-	"fmt"
-	"github.com/jinzhu/gorm"
-	"github.com/satori/go.uuid"
-	"github.com/tomoyane/grant-n-z/domain"
-	"github.com/tomoyane/grant-n-z/domain/entity"
-	"github.com/tomoyane/grant-n-z/handler"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"net/http"
 	"os"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/jinzhu/gorm"
+	"github.com/satori/go.uuid"
+	"github.com/tomoyane/grant-n-z/domain/entity"
 )
 
 var (
-	Db            *gorm.DB
-	dbSource      string
-	Yaml          domain.Yml
-	userUuid      uuid.UUID
-	roleUuid      uuid.UUID
-	serviceUuid   uuid.UUID
-	memberUuid    uuid.UUID
-	principalUuid uuid.UUID
+	Db *gorm.DB
 )
 
-func InitYaml() {
-	switch os.Getenv("ENV") {
-	case "test":
-		Yaml = readYml("../app-test.yaml")
-		dbSource = Yaml.GetDataSourceUrl()
-	default:
-		Yaml = readYml("app.yaml")
-		dbSource = Yaml.GetDataSourceUrl()
-	}
-
-	fmt.Print(dbSource)
+func Init() {
+	dbSource := getDataSource()
+	initDb(dbSource)
+	migrateDb()
 }
 
-func InitDB() {
+// Read yaml file
+func readYml(ymlName string) Yml {
+	yml, err := ioutil.ReadFile(ymlName)
+	if err != nil {
+		panic(err)
+	}
+
+	var ymlData Yml
+	err = yaml.Unmarshal(yml, &ymlData)
+	if err != nil {
+		panic(err)
+	}
+
+	return ymlData
+}
+
+// Get data source
+func getDataSource() string {
+	var dbSource string
+
+	switch os.Getenv("ENV") {
+	case "test":
+		yml := readYml("../app-test.yaml")
+		dbSource = yml.GetDataSourceUrl()
+	default:
+		yml := readYml("app.yaml")
+		dbSource = yml.GetDataSourceUrl()
+	}
+
+	return dbSource
+}
+
+// Init database
+func initDb(dbSource string) {
 	db, err := gorm.Open("mysql", dbSource)
 	if err != nil {
 		panic(err)
@@ -48,83 +65,57 @@ func InitDB() {
 	Db = db
 }
 
-func MigrateDB() {
+// Database migration
+func migrateDb() {
+
+	// users
 	if !Db.HasTable(entity.User{}.TableName()) {
 		Db.CreateTable(&entity.User{})
-		userUuid, _ = uuid.NewV4()
 		hash, _ := bcrypt.GenerateFromPassword([] byte("admin"), bcrypt.DefaultCost)
 		user := entity.User{
 			Username: "admin",
 			Email:    "admin@gmail.com",
 			Password: string(hash),
-			Uuid:     userUuid,
+			Uuid:     uuid.NewV4(),
 		}
 		Db.Create(&user)
 	}
 
+	// groups
+	if !Db.HasTable(entity.Group{}.GetTableName()) {
+		Db.CreateTable(&entity.Group{})
+		group := entity.Group{
+			Domain: "admin.com",
+		}
+		Db.Create(&group)
+	}
+
+	// principals
+	if !Db.HasTable(entity.Principal{}.TableName()) {
+		Db.CreateTable(&entity.Principal{})
+		principal := entity.Principal{
+			UserId:  1,
+			GroupId: 1,
+		}
+		Db.Create(&principal)
+	}
+
+	// roles
 	if !Db.HasTable(entity.Role{}.TableName()) {
 		Db.CreateTable(&entity.Role{})
-		roleUuid, _ = uuid.NewV4()
 		role := entity.Role{
-			Uuid:       roleUuid,
 			Permission: "admin",
 		}
 		Db.Create(&role)
 	}
 
-	if !Db.HasTable(entity.Service{}.TableName()) {
-		Db.CreateTable(&entity.Service{})
-		serviceUuid, _ = uuid.NewV4()
-		service := entity.Service{
-			Uuid: serviceUuid,
-			Name: "admin-service",
-		}
-		Db.Create(&service)
-	}
-
+	// members
 	if !Db.HasTable(entity.Member{}.TableName()) {
 		Db.CreateTable(&entity.Member{})
-		memberUuid, _ = uuid.NewV4()
 		member := entity.Member{
-			Uuid:        memberUuid,
-			ServiceUuid: serviceUuid,
-			UserUuid:    userUuid,
+			UserId: 1,
+			RoleId: 1,
 		}
 		Db.Create(&member)
 	}
-
-	if !Db.HasTable(entity.Principal{}.TableName()) {
-		Db.CreateTable(&entity.Principal{})
-		principalUuid, _ = uuid.NewV4()
-		principal := entity.Principal{
-			Uuid: principalUuid,
-			MemberUuid: memberUuid,
-			RoleUuid:   roleUuid,
-		}
-		Db.Create(&principal)
-	}
-
-	if !Db.HasTable(entity.Token{}.TableName()) {
-		Db.CreateTable(&entity.Token{})
-	}
-}
-
-func GetHostName() string {
-	host, err := os.Hostname()
-	if err != nil {
-		handler.ErrorResponse{}.Print(http.StatusInternalServerError, "failed hostname", "")
-	}
-	return host
-}
-
-func readYml(ymlName string) domain.Yml {
-	yml, err := ioutil.ReadFile(ymlName)
-	if err != nil {
-		handler.ErrorResponse{}.Print(http.StatusInternalServerError, "failed read yml", "")
-	}
-
-	var db domain.Yml
-	err = yaml.Unmarshal(yml, &db)
-
-	return db
 }
