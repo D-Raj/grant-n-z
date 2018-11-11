@@ -18,6 +18,14 @@ func (gr GroupRepositoryImpl) FindByDomain(domain string) *entity.Group {
 	return &group
 }
 
+func (gr GroupRepositoryImpl) FindById(id int) (g *entity.Group, err error) {
+	var group entity.Group
+	if err := infra.Db.Where("id = ?", id).First(&group).Error; err != nil {
+		return nil, err
+	}
+	return &group, nil
+}
+
 func (gr GroupRepositoryImpl) FindAll() (groups []*entity.Group, err error) {
 	if err := infra.Db.Find(&groups).Error; err != nil {
 		return nil, err

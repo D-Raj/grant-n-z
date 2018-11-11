@@ -9,5 +9,7 @@ type GroupRepository interface {
 
 	FindByDomain(domain string) *entity.Group
 
+	FindById(id int) (g *entity.Group, err error)
+
 	Save(group entity.Group) (g *entity.Group, err error)
 }
