@@ -17,12 +17,22 @@ func (gs GroupService) NewGroupService() GroupService {
 	return gs
 }
 
-func (gs GroupService) GetAll() (response []*entity.Group, err error) {
+func (gs GroupService) GetAll() (response []*entity.Group, err error, code int) {
 	groups, err := gs.groupRepository.FindAll()
 	if err != nil {
-		return nil, err
+		err = errors.New("database error.")
+		return nil, err, http.StatusInternalServerError
 	}
-	return groups, nil
+	return groups, nil, http.StatusOK
+}
+
+func (gs GroupService) GetById(id int) (response *entity.Group, err error, code int) {
+	group, err := gs.groupRepository.FindById(id)
+	if err != nil {
+		err = errors.New("database error.")
+		return nil, err, http.StatusInternalServerError
+	}
+	return group, nil, http.StatusOK
 }
 
 func (gs GroupService) Insert(request *entity.Group) (response *entity.Group, err error, code int) {
