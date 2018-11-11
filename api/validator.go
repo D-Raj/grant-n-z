@@ -1,4 +1,4 @@
-package domain
+package api
 
 import (
 	"github.com/labstack/echo"
@@ -15,4 +15,14 @@ func NewValidator() echo.Validator {
 
 func (gv *RequestValidator) Validate(i interface{}) error {
 	return gv.validator.Struct(i)
+}
+
+func ValidateBody(c echo.Context, body interface{}) error {
+	if err := c.Bind(body); err != nil {
+		return err
+	}
+	if err := c.Validate(body); err != nil {
+		return err
+	}
+	return nil
 }
