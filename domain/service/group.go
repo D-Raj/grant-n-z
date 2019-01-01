@@ -44,7 +44,7 @@ func (gs GroupService) Insert(request *entity.Group) (response *entity.Group, er
 
 	group, err = gs.groupRepository.Save(*request)
 	if err != nil {
-		err = errors.New("insert error.")
+		err = errors.New("group insert error.")
 		return nil, err, http.StatusInternalServerError
 	}
 	return group, nil, http.StatusCreated

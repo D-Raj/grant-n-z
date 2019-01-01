@@ -1,23 +1,9 @@
 package entity
 
-import (
-	"github.com/satori/go.uuid"
-	"time"
-)
-
 type Principal struct {
-	Id         int       `gorm:"primary_key"json:"id"`
-	Uuid       uuid.UUID `gorm:"type:varchar(128);not null"validate:"required"json:"uuid"`
-	MemberUuid uuid.UUID `gorm:"type:varchar(128);not null;index:member_uuid"validate:"required"json:"member_uuid"`
-	RoleUuid   uuid.UUID `gorm:"type:varchar(128);not null;index:role_uuid"validate:"required"json:"role_uuid"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
-}
-
-type PrincipalRequest struct {
-	UserName       string `validate:"required"json:"user_name"`
-	ServiceName    string `validate:"required"json:"service_name"`
-	RolePermission string `validate:"required"json:"role_permission"`
+	Id       int `gorm:"primary_key"json:"id"`
+	UserId   int `gorm:"index:user_id"json:"user_id"`
+	GroupId int `gorm:"index:domain_id"json:"group_id"`
 }
 
 func (m Principal) TableName() string {

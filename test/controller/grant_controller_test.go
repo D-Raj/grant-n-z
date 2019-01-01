@@ -4,7 +4,7 @@ import (
 	"testing"
 	"net/http/httptest"
 	"github.com/labstack/echo"
-	"github.com/tomoyane/grant-n-z/controller"
+	"github.com/tomoyane/grant-n-z/api"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,5 +14,5 @@ func TestGrantUnauthorized01(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(request, recorder)
 
-	assert.Error(t, controller.PostToken(c))
+	assert.Error(t, api.PostToken(c))
 }

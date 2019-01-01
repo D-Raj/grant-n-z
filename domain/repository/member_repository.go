@@ -8,5 +8,7 @@ import (
 type MemberRepository interface {
 	FindByUserUuidAndServiceUuid(userUuid uuid.UUID, serviceUuid uuid.UUID) *entity.Member
 
+	FindByUserUuid(userUuid uuid.UUID) []*entity.Member
+
 	Save(member entity.Member) *entity.Member
 }

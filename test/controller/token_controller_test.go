@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"github.com/labstack/echo"
 	"strings"
-	"github.com/tomoyane/grant-n-z/controller"
+	"github.com/tomoyane/grant-n-z/api"
 	"net/http"
 	"github.com/stretchr/testify/assert"
 	"github.com/tomoyane/grant-n-z/domain"
@@ -26,13 +26,13 @@ func TestIssueTokenOk(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(request, recorder)
 
-	if assert.NoError(t, controller.PostToken(c)) {
+	if assert.NoError(t, api.PostToken(c)) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 	}
 }
 
 func TestIssueTokenBadRequest01(t *testing.T) {
-	e.Validator = &domain.GrantValidator{Validator: validator.New()}
+	e.Validator = &domain.RequestValidator{Validator: validator.New()}
 
 	inCorrectData := `{"key":"value"}`
 
@@ -41,11 +41,11 @@ func TestIssueTokenBadRequest01(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(request, recorder)
 
-	assert.Error(t, controller.PostToken(c))
+	assert.Error(t, api.PostToken(c))
 }
 
 func TestIssueTokenBadRequest02(t *testing.T) {
-	e.Validator = &domain.GrantValidator{Validator: validator.New()}
+	e.Validator = &domain.RequestValidator{Validator: validator.New()}
 
 	// Incorrect validation
 	user := entity.User {
@@ -59,7 +59,7 @@ func TestIssueTokenBadRequest02(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(request, recorder)
 
-	assert.Error(t, controller.PostToken(c))
+	assert.Error(t, api.PostToken(c))
 }
 
 func TestIssueTokenUnProcessableEntity01(t *testing.T) {
@@ -74,7 +74,7 @@ func TestIssueTokenUnProcessableEntity01(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(request, recorder)
 
-	assert.Error(t, controller.PostToken(c))
+	assert.Error(t, api.PostToken(c))
 }
 
 func TestIssueTokenUnProcessableEntity02(t *testing.T) {
@@ -89,5 +89,5 @@ func TestIssueTokenUnProcessableEntity02(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(request, recorder)
 
-	assert.Error(t, controller.PostToken(c))
+	assert.Error(t, api.PostToken(c))
 }

@@ -1,19 +1,11 @@
 package entity
 
-import (
-	"github.com/satori/go.uuid"
-	"time"
-)
-
 type Member struct {
-	Id          int       `json:"id"`
-	Uuid        uuid.UUID `gorm:"type:varchar(128);not null"validate:"required"json:"uuid"`
-	ServiceUuid uuid.UUID `gorm:"type:varchar(128);not null;index:service_uuid"validate:"required"json:"service_uuid"`
-	UserUuid    uuid.UUID `gorm:"type:varchar(128);not null;index:user_uuid"validate:"required"json:"user_uuid"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	Id        int       `json:"id"`
+	UserId    int       `gorm:"type:varchar(128);not null;index:user_id"json:"user_id"`
+	RoleId    int       `gorm:"type:varchar(128);not null;index:role_id"json:"role_id"`
 }
 
-func (m Member) TableName() string {
+func (e Member) TableName() string {
 	return "members"
 }

@@ -22,6 +22,19 @@ func (m MemberRepositoryImpl) FindByUserUuidAndServiceUuid(userUuid uuid.UUID, s
 	return &member
 }
 
+func (m MemberRepositoryImpl) FindByUserUuid(userUuid uuid.UUID) []*entity.Member {
+	var members []*entity.Member
+
+	if err := infra.Db.Where("user_uuid = ?", userUuid).Find(&members).Error; err != nil {
+		if err.Error() == "record not found" {
+			return []*entity.Member{}
+		}
+		return nil
+	}
+
+	return members
+}
+
 func (m MemberRepositoryImpl) Save(member entity.Member) *entity.Member {
 	if err := infra.Db.Create(&member).Error; err != nil {
 		return nil

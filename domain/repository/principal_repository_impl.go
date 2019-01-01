@@ -8,25 +8,13 @@ import (
 type PrincipalRepositoryImpl struct {
 }
 
-// Find principal by principals.name
-func (r PrincipalRepositoryImpl) FindByName(name string) *entity.Principal {
-	principal := entity.Principal{}
-
-	if err := infra.Db.Where("name = ?", name).First(&principal).Error; err != nil {
-		if err.Error() == "record not found" {
-			return &entity.Principal{}
-		}
-		return nil
-	}
-
-	return &principal
+func (pr PrincipalRepositoryImpl) NewPrincipalRepository() PrincipalRepository {
+	return pr
 }
 
-// Save to principal
-func (r PrincipalRepositoryImpl) Save(principal entity.Principal) *entity.Principal {
+func (pr PrincipalRepositoryImpl) Save(principal entity.Principal) (p *entity.Principal, err error) {
 	if err := infra.Db.Create(&principal).Error; err != nil {
-		return nil
+		return nil, err
 	}
-
-	return &principal
+	return &principal, nil
 }

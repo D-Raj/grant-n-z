@@ -11,7 +11,7 @@ type ServiceService struct {
 }
 
 func (s ServiceService) InsertService(service *entity.Service) *entity.Service {
-	service.Uuid, _ = uuid.NewV4()
+	service.Uuid = uuid.NewV4()
 	return s.ServiceRepository.Save(service)
 }
 

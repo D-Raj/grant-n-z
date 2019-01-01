@@ -9,13 +9,13 @@ import (
 	"net/http/httptest"
 	"github.com/labstack/echo"
 	"strings"
-	"github.com/tomoyane/grant-n-z/controller"
+	"github.com/tomoyane/grant-n-z/api"
 	"net/http"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateUser(t *testing.T) {
-	e.Validator = &domain.GrantValidator{Validator: validator.New()}
+	e.Validator = &domain.RequestValidator{Validator: validator.New()}
 
 	user := entity.User {
 		Username: "test",
@@ -29,13 +29,13 @@ func TestCreateUser(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(request, recorder)
 
-	if assert.NoError(t, controller.PostUser(c)) {
+	if assert.NoError(t, api.PostUser(c)) {
 		assert.Equal(t, http.StatusCreated, recorder.Code)
 	}
 }
 
 func TestCreateUserBadRequest01(t *testing.T) {
-	e.Validator = &domain.GrantValidator{Validator: validator.New()}
+	e.Validator = &domain.RequestValidator{Validator: validator.New()}
 
 	inCorrectData := `{"key":"value"}`
 
@@ -44,11 +44,11 @@ func TestCreateUserBadRequest01(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(request, recorder)
 
-	assert.Error(t, controller.PostUser(c))
+	assert.Error(t, api.PostUser(c))
 }
 
 func TestCreateUserBadRequest02(t *testing.T) {
-	e.Validator = &domain.GrantValidator{Validator: validator.New()}
+	e.Validator = &domain.RequestValidator{Validator: validator.New()}
 
 	// Incorrect validation
 	user := entity.User {
@@ -63,11 +63,11 @@ func TestCreateUserBadRequest02(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(request, recorder)
 
-	assert.Error(t, controller.PostUser(c))
+	assert.Error(t, api.PostUser(c))
 }
 
 func TestCreateUserUnProcessableEntity(t *testing.T) {
-	e.Validator = &domain.GrantValidator{Validator: validator.New()}
+	e.Validator = &domain.RequestValidator{Validator: validator.New()}
 
 	// Already exit user
 	user := entity.User {
@@ -82,5 +82,5 @@ func TestCreateUserUnProcessableEntity(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(request, recorder)
 
-	assert.Error(t, controller.PostUser(c))
+	assert.Error(t, api.PostUser(c))
 }

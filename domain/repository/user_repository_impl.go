@@ -8,68 +8,47 @@ import (
 type UserRepositoryImpl struct {
 }
 
-// Find user by users.email
-func (u UserRepositoryImpl) FindByEmail(email string) *entity.User {
-	user := entity.User{}
+func (ur UserRepositoryImpl) NewUserRepository() UserRepository {
+	return ur
+}
 
-	if err := infra.Db.Where("email = ?", email).First(&user).Error; err != nil {
-		if err.Error() == "record not found" {
-			return &entity.User{}
-		}
-		return nil
-	}
-
+func (ur UserRepositoryImpl) FindByEmail(email string) *entity.User {
+	var user entity.User
+	infra.Db.Where("email = ?", email).First(&user)
 	return &user
 }
 
-// Find user by user.username and users.uuid
-func (u UserRepositoryImpl) FindByUserNameAndUuid(username string, uuidStr string) *entity.User  {
-	user := entity.User{}
-
-	if err := infra.Db.Where("username = ? AND uuid = ?", username, uuidStr).First(&user).Error; err != nil {
-		if err.Error() == "record not found" {
-			return &entity.User{}
-		}
-		return nil
+func (ur UserRepositoryImpl) FindByUuid(uuidStr string) (u *entity.User, err error) {
+	var user entity.User
+	if err := infra.Db.Where("uuid = ?", uuidStr).First(&user).Error; err != nil {
+		return nil, err
 	}
-
-	return &user
+	return &user, nil
 }
 
-// Find user by user.username
-func (u UserRepositoryImpl) FindByUserName(username string) *entity.User  {
-	user := entity.User{}
-
+func (ur UserRepositoryImpl) FindByUserName(username string) (u *entity.User, err error)  {
+	var user entity.User
 	if err := infra.Db.Where("username = ?", username).First(&user).Error; err != nil {
-		if err.Error() == "record not found" {
-			return &entity.User{}
-		}
-		return nil
+		return nil, err
 	}
-
-	return &user
+	return &user, nil
 }
 
-// Save to user
-func (u UserRepositoryImpl) Save(user entity.User) *entity.User {
+func (ur UserRepositoryImpl) Save(user entity.User) (u *entity.User, err error) {
 	if err := infra.Db.Create(&user).Error; err != nil {
-		return nil
+		return nil, err
 	}
-
-	return &user
+	return &user, nil
 }
 
-// Update to user
-func (u UserRepositoryImpl) Update(user entity.User) *entity.User {
+func (ur UserRepositoryImpl) Update(user entity.User) (u *entity.User, err error) {
 	if err := infra.Db.Save(&user).Error; err != nil {
-		return nil
+		return nil, err
 	}
-
-	return &user
+	return &user, nil
 }
 
-// Update to user column
-func (u UserRepositoryImpl) UpdateUserColumn(user entity.User, column string) *entity.User {
+func (ur UserRepositoryImpl) UpdateUserColumn(user entity.User, column string) (u *entity.User, err error) {
 	var data string
 
 	switch column {
@@ -82,8 +61,7 @@ func (u UserRepositoryImpl) UpdateUserColumn(user entity.User, column string) *e
 	}
 
 	if err := infra.Db.Model(&entity.User{}).Where("email = ?", user.Email).Update(column, data).Error; err != nil {
-		return nil
+		return nil, err
 	}
-
-	return &user
+	return &user, nil
 }

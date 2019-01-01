@@ -7,13 +7,13 @@ import (
 type UserRepository interface {
 	FindByEmail(email string) *entity.User
 
-	FindByUserNameAndUuid(username string, uuidStr string) *entity.User
+	FindByUuid(uuidStr string) (u *entity.User, err error)
 
-	FindByUserName(username string) *entity.User
+	FindByUserName(username string) (u *entity.User, err error)
 
-	Save(user entity.User) *entity.User
+	Save(user entity.User) (u *entity.User, err error)
 
-	Update(user entity.User) *entity.User
+	Update(user entity.User) (u *entity.User, err error)
 
-	UpdateUserColumn(user entity.User, column string) *entity.User
+	UpdateUserColumn(user entity.User, column string) (u *entity.User, err error)
 }

@@ -22,7 +22,7 @@ func TestMain(m *testing.M) {
 	di.InitTokenService(stub.TokenRepositoryStub{})
 	di.InitRoleService(stub.RoleRepositoryStub{})
 
-	e.Validator = &domain.GrantValidator{Validator: validator.New()}
+	e.Validator = &domain.RequestValidator{Validator: validator.New()}
 
 	code := m.Run()
 
